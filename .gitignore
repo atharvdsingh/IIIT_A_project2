@@ -1,0 +1,17 @@
+# Ignore Python environments
+venv/
+**/venv/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Your case
+backend/backend/
+
+# Node & system
+node_modules/
+build/
+dist/
+.DS_Store
+.env
