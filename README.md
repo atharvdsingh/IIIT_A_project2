@@ -23,28 +23,30 @@ This project allows you to upload a CSV file, train a TreeFARMS model, get decis
 ```bash
 git clone https://github.com/atharvdsingh/IIIT_All_project.git
 cd IIIT_All_project
+```
+### step 2: Start the backend server 
 
-(1) now go to backend 
+```bash
+//go to backend folder
 cd backend
 
-(2) create and activate  new virtual environment
+// create and activate  new virtual environment
 python3 -m venv tf-env
 source tf-env/bin/activate 
 
-(3) install required dependencies
+// install required dependencies
 pip install -r requirements.txt
-(4) start the flask server 
+// start the flask server 
 python app.py
 > The backend server will run at: http://localhost:5000
-
-
 ```
-### step 2: Setup and run the Frontend
+### step 3: Setup and run the Frontend
 
 ```bash 
 cd frontend
 npm install
 npm run dev
+```
 > The frontend will be available at: [http://localhost:5173](http://localhost:5173)
 >   If port 5173 is already in use, check your terminal — Vite will assign a new port automatically.
 >   Open the URL shown in the console (e.g., http://localhost:5174, etc.).
