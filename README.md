@@ -40,16 +40,25 @@ pip install -r requirements.txt
 python app.py
 > The backend server will run at: http://localhost:5000
 ```
-### step 3: Setup and run the Frontend
+### step 3: setup the timbertrek
+```bash
+cd timbertrek
+npm install
+npm run dev
+```
+### step 4: Setup and run the Frontend
 
 ```bash 
 cd frontend
 npm install
 npm run dev
 ```
-> The frontend will be available at: [http://localhost:5173](http://localhost:5173)
->   If port 5173 is already in use, check your terminal — Vite will assign a new port automatically.
->   Open the URL shown in the console (e.g., http://localhost:5174, etc.).
+> The frontend will be available at:
+> [http://localhost:5173](http://localhost:5173)
+>   If port 5173 is already in use, check your terminal 
+> — Vite will assign a new port automatically.
+>   Open the URL shown in the console 
+> (e.g., http://localhost:5174, etc.).
 
 
 > Upload the CSV file from frontend. The model will train and return a downloadable JSON.

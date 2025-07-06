@@ -77,7 +77,7 @@ function App() {
     
     <div className="flex flex-col items-center justify-center min-h-screen bg-black gap-4 p-6">
      
-      <h1 className='text-white text-5xl font-extrabold font-serif ' >TIMBER<span className='' >TREK</span></h1>
+      <h1 className='text-green-500 text-8xl font-extrabold  font-serif ' >TIMBER<span className='' >TREK</span></h1>
 
       <h1 className='text-white text-3xl' >uploade the file in csv formate </h1>
       <h2 className='text-white' >make sure csv file is preprocessed </h2>
