@@ -1,34 +1,50 @@
-def viz(filepath:str,label:str=None):
-    import pandas as pd
-    import numpy as np
-    import pathlib
-    from sklearn.ensemble import GradientBoostingClassifier
-    from sklearn.model_selection import train_test_split
-    from treefarms.model.threshold_guess import compute_thresholds, cut
-    from treefarms import TREEFARMS
-    from treefarms.model.model_set import ModelSetContainer
-    import json
-    # read the dataset
-    df=pd.read_csv(filepath)
-    if label is None:
-        label=df.columns[-1]
-    if label not in df.columns:
-        raise ValueError(f'lable is not in column{label}')
-    
-    X, y = df.iloc[:, :-1], df.iloc[:, -1]
-    h = df.columns[:-1]
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from treefarms import TREEFARMS
+from multiprocessing import Process, Queue
+import json
 
-    # train TREEFARMS model
+def train_model(X, y, config, queue):
+    try:
+        model = TREEFARMS(config)
+        model.fit(X, y)
+        paths = model.get_decision_paths()
+        queue.put(paths)
+    except Exception as e:
+        queue.put({'error': str(e)})
+
+def viz(filepath: str, label: str = None):
+    # Load dataset
+    df = pd.read_csv(filepath)
+    if label is None:
+        label = df.columns[-1]
+    if label not in df.columns:
+        raise ValueError(f"Label '{label}' not found in dataset columns")
+
+    X, y = df.drop(columns=[label]), df[label]
+
     config = {
-    "regularization": 0.01,  # regularization penalizes the tree with more leaves. We recommend to set it to relative high value to find a sparse tree.
-    "rashomon_bound_multiplier": 0.05,  # rashomon bound multiplier indicates how large of a Rashomon set would you like to get
+        "regularization": 0.01,
+        "rashomon_bound_multiplier": 0.05
     }
 
+    queue = Queue()
+    p = Process(target=train_model, args=(X, y, config, queue))
+    p.start()
+    p.join(timeout=20)
 
-    model = TREEFARMS(config)
+    if p.is_alive():
+        p.terminate()
+        p.join()
+        raise TimeoutError("Training took too long and was stopped after 20 seconds.")
 
-    model.fit(X, y)
-    path=model.get_decision_paths()
+    if queue.empty():
+        raise RuntimeError("Training failed or no output produced.")
+    
+    result = queue.get()
 
-    return path
+    if isinstance(result, dict) and 'error' in result:
+        raise RuntimeError(f"Training failed: {result['error']}")
 
+    return result  # JSON-serializable decision paths

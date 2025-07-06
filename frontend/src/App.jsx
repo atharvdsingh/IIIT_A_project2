@@ -30,28 +30,43 @@ function App() {
       formData.append('file', file)
 
       try {
-        const respons = await fetch('http://localhost:5000/upload', {
+        const response = await fetch('http://localhost:5000/upload', {
           method: 'POST',
           body: formData
         })
-        if (respons.ok) {
-          const blob = await respons.blob()
-          const downloadUrl = URL.createObjectURL(blob)
-          const a = document.createElement('a')
-          a.href = downloadUrl
-          a.download = 'decision_paths.json'
-          document.body.appendChild(a)
-          a.click()
-          a.remove()
-          URL.revokeObjectURL(downloadUrl)
-          setActive(true)
+        if (response.ok) {
+          const result = await response.json()
+          console.log('Backend response:', result)
+          if (result.success) {
+            // Send data to TimberTrek via postMessage
+            const timbertrekIframe = document.getElementById('timbertrek-iframe')
+            console.log('TimberTrek iframe:', timbertrekIframe)
+            setActive(true)
+            // Wait for iframe to load before sending data
+            setTimeout(() => {
+              const timbertrekIframe = document.getElementById('timbertrek-iframe')
+              console.log('TimberTrek iframe after delay:', timbertrekIframe)
+              if (timbertrekIframe) {
+                console.log('Sending data to TimberTrek:', result.data)
+                timbertrekIframe.contentWindow.postMessage({
+                  type: 'TIMBERTREK_DATA',
+                  data: result.data
+                }, '*')
+              } else {
+                console.log('TimberTrek iframe not found after delay')
+              }
+            }, 2000) // Wait 2 seconds for iframe to load
+          } else {
+            seterror(result.error || 'Failed to process file')
+          }
+        } else {
+          const errorData = await response.json()
+          seterror(errorData.error || 'Upload failed')
         }
 
-
       } catch (error) {
-        console.log('error while cathcing ', error);
-
-
+        console.log('error while catching ', error);
+        seterror('Network error occurred')
       }
 
     }
@@ -89,7 +104,7 @@ function App() {
         </p>
 
       )}
-      { active?( <p className='text-white' >scroll below and click <span className='text-red-700' >MY OWN SET</span>  and upload the <span className='text-red-700' >decision_paths.json</span>  file   </p> ):(null) }
+      { active?( <p className='text-white' >Processing complete! Visualization will appear below automatically.</p> ):(null) }
       {
         error && (<p className='text-sm text-gray-400' >
           {error}
@@ -101,9 +116,11 @@ function App() {
       
     </div>
 {active ? (<iframe
-        src="https://poloclub.github.io/timbertrek"
+        id="timbertrek-iframe"
+        src="http://localhost:3000"
         style={{ width: "100%", height: "90vh", border: "none" }}
         title="TimberTrek Visualization"
+        onLoad={() => console.log('TimberTrek iframe loaded')}
       />) : (null)}
 
 </>

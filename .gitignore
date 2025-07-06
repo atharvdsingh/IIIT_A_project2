@@ -6,7 +6,6 @@ venv/
 *.pyo
 *.pyd
 
-# Your case
 backend/backend/
 
 # Node & system
@@ -15,3 +14,4 @@ build/
 dist/
 .DS_Store
 .env
+/backend/tf-env
