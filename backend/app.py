@@ -23,9 +23,12 @@ def upload_file():
 
     file_path = os.path.join(UPLOAD_FOLDER, file.filename)
     file.save(file_path)
+    regularization = float(request.form.get('regularization', 0.01))
+    rashomon_bound_multiplier = float(request.form.get('rashomon_bound_multiplier', 0.05))
+
 
     try:
-        decision_paths = viz(file_path)
+        decision_paths = viz(file_path,regularization,rashomon_bound_multiplier)
 
         # Return JSON data directly instead of file download
         return jsonify({
