@@ -3,6 +3,7 @@ from flask_cors import CORS
 import os
 import json
 import uuid
+import pandas as pd
 
 from model.backendModel import viz
 
@@ -11,6 +12,15 @@ CORS(app)
 
 UPLOAD_FOLDER = 'folder'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+def CheckForInteger(df):
+      columns=df.columns
+      for i in columns:
+          unique_value=df[i].dropna().unique()
+          if not set(unique_value).issubset({0,1}):
+              return True
+      return False
+    
+    
 
 @app.route("/upload", methods=['POST'])
 def upload_file():
@@ -26,7 +36,14 @@ def upload_file():
     regularization = float(request.form.get('regularization', 0.01))
     rashomon_bound_multiplier = float(request.form.get('rashomon_bound_multiplier', 0.05))
 
-
+    df=pd.read_csv(file_path)
+  
+    if(df.isnull().values.any()):
+        return jsonify({"error":'Dataset contains null values '}),402
+    if(CheckForInteger(df)):
+        return jsonify({'error':'data contain interger but model works on binary value[0,1]'})
+    
+    
     try:
         decision_paths = viz(file_path,regularization,rashomon_bound_multiplier)
 
@@ -37,12 +54,14 @@ def upload_file():
             'filename': f"decision_paths_{uuid.uuid4().hex[:8]}.json"
         })
     
+    
     except TimeoutError:
         return jsonify({'error': 'Training took too long and was stopped.'}), 408
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# Keep the original endpoint for backward compatibility
+
+# Keeping the previous for file returning capability for file downlaod in client side 
 @app.route("/upload-file", methods=['POST'])
 def upload_file_download():
     if 'file' not in request.files:
