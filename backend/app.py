@@ -61,35 +61,35 @@ def upload_file():
         return jsonify({'error': str(e)}), 500
 
 
-# Keeping the previous for file returning capability for file downlaod in client side 
-@app.route("/upload-file", methods=['POST'])
-def upload_file_download():
-    if 'file' not in request.files:
-        return jsonify({'error': 'No file part'}), 400
+# # Keeping the previous for file returning capability for file downlaod in client side 
+# @app.route("/upload-file", methods=['POST'])
+# def upload_file_download():
+#     if 'file' not in request.files:
+#         return jsonify({'error': 'No file part'}), 400
 
-    file = request.files['file']
-    if file.filename == '':
-        return jsonify({'error': 'No selected file'}), 400
+#     file = request.files['file']
+#     if file.filename == '':
+#         return jsonify({'error': 'No selected file'}), 400
 
-    file_path = os.path.join(UPLOAD_FOLDER, file.filename)
-    file.save(file_path)
+#     file_path = os.path.join(UPLOAD_FOLDER, file.filename)
+#     file.save(file_path)
 
-    try:
-        decision_paths = viz(file_path)
+#     try:
+#         decision_paths = viz(file_path)
 
-        # Unique filename to avoid overwriting
-        filename = f"decision_paths_{uuid.uuid4().hex[:8]}.json"
-        json_path = os.path.join(UPLOAD_FOLDER, filename)
+#         # Unique filename to avoid overwriting
+#         filename = f"decision_paths_{uuid.uuid4().hex[:8]}.json"
+#         json_path = os.path.join(UPLOAD_FOLDER, filename)
 
-        with open(json_path, "w") as f:
-            json.dump(decision_paths, f, indent=2)
+#         with open(json_path, "w") as f:
+#             json.dump(decision_paths, f, indent=2)
 
-        return send_file(json_path, as_attachment=True)
+#         return send_file(json_path, as_attachment=True)
     
-    except TimeoutError:
-        return jsonify({'error': 'Training took too long and was stopped.'}), 408
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+#     except TimeoutError:
+#         return jsonify({'error': 'Training took too long and was stopped.'}), 408
+#     except Exception as e:
+#         return jsonify({'error': str(e)}), 500
 
 if __name__ == "__main__":
     app.run(debug=True)
