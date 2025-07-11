@@ -146,7 +146,7 @@ function App() {
       </div>
       {active ? (<iframe
         id="timbertrek-iframe"
-        src="http://localhost:3000"
+        src="/iframe/index.html"
         style={{ width: "100%", height: "90vh", border: "none" }}
         title="TimberTrek Visualization"
         onLoad={() => console.log('TimberTrek iframe loaded')}
